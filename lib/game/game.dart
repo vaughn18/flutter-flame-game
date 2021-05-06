@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:dino_run/game/enemy.dart';
 import 'package:dino_run/game/enemy_manager.dart';
 import 'package:flame/components/parallax_component.dart';
 import 'package:flame/components/text_component.dart';
@@ -11,7 +12,6 @@ import 'package:flame/spritesheet.dart';
 import 'package:flutter/material.dart';
 
 import 'dino.dart';
-import 'enemy.dart';
 
 class DinoGame extends BaseGame with TapDetector {
   Dino _dino;
@@ -53,6 +53,12 @@ class DinoGame extends BaseGame with TapDetector {
     super.update(t);
     score += (60 * t).toInt();
     _scoreText.text = score.toString();
+
+    components.whereType<Enemy>().forEach((enemy) {
+      if (_dino.distance(enemy) < 40) {
+        _dino.hit();
+      }
+    });
   }
 
   @override

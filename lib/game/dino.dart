@@ -1,14 +1,18 @@
 import 'dart:ui';
 
+import 'package:flame/anchor.dart';
 import 'package:flame/animation.dart';
 import 'package:flame/components/animation_component.dart';
 import 'package:flame/spritesheet.dart';
+import 'package:flame/time.dart';
 
 import 'constants.dart';
 
 class Dino extends AnimationComponent {
   Animation _runAnimation;
   Animation _hitAnimation;
+  Timer _timer;
+  bool _isHit = false;
 
   double speedY = 0.0;
   double yMax = 0.0;
@@ -36,6 +40,13 @@ class Dino extends AnimationComponent {
         spriteSheet.createAnimation(0, from: 14, to: 16, stepTime: 0.1);
 
     this.animation = _runAnimation;
+
+    _timer = Timer(1, callback: () {
+      run();
+    });
+    _isHit = false;
+
+    this.anchor = Anchor.center;
   }
 
   @override
@@ -43,7 +54,8 @@ class Dino extends AnimationComponent {
     super.resize(size);
     this.height = this.width = size.width / numberOfTilesAlongWidth;
     this.x = this.width;
-    this.y = size.height - groundHeight - this.height + dinoTopBottomSpacing;
+    this.y =
+        size.height - groundHeight - (this.height / 2) + dinoTopBottomSpacing;
     this.yMax = this.y;
   }
 
@@ -60,6 +72,8 @@ class Dino extends AnimationComponent {
       this.y = this.yMax;
       this.speedY = 0.0;
     }
+
+    _timer.update(t);
   }
 
   bool isOnGround() {
@@ -67,11 +81,17 @@ class Dino extends AnimationComponent {
   }
 
   void run() {
+    _isHit = false;
     this.animation = _runAnimation;
+    _timer.start();
   }
 
   void hit() {
-    this.animation = _hitAnimation;
+    if (!_isHit) {
+      this.animation = _hitAnimation;
+      _timer.start();
+      _isHit = true;
+    }
   }
 
   void jump() {

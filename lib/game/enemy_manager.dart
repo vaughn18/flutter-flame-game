@@ -6,13 +6,16 @@ import 'package:dino_run/game/game.dart';
 import 'package:flame/components/component.dart';
 import 'package:flame/components/mixins/has_game_ref.dart';
 import 'package:flame/time.dart';
+import 'package:flutter/material.dart';
 
 class EnemyManager extends Component with HasGameRef<DinoGame> {
   Random _random;
   Timer _timer;
+  int _spawnLevel;
 
   EnemyManager() {
     _random = Random();
+    _spawnLevel = 0;
     _timer = Timer(4, repeat: true, callback: () {
       spawnRandomEnemy();
     });
@@ -36,6 +39,18 @@ class EnemyManager extends Component with HasGameRef<DinoGame> {
   void update(double t) {
     // TODO: implement update
     _timer.update(t);
+
+    var newSpawnLevel = (gameRef.score ~/ 500);
+    if (_spawnLevel < newSpawnLevel) {
+      _spawnLevel = newSpawnLevel;
+      _timer.stop();
+      var newWaitTime = (4 / (1 + (0.1 * _spawnLevel)));
+      debugPrint(newWaitTime.toString());
+      _timer = Timer(newWaitTime, repeat: true, callback: () {
+        spawnRandomEnemy();
+      });
+      _timer.start();
+    }
   }
 
   @override
