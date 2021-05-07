@@ -5,15 +5,15 @@ import 'package:dino_run/game/enemy_manager.dart';
 import 'package:flame/components/parallax_component.dart';
 import 'package:flame/components/text_component.dart';
 import 'package:flame/game/base_game.dart';
-import 'package:flame/components/animation_component.dart';
+import 'package:flame/game/game.dart';
 import 'package:flame/gestures.dart';
 import 'package:flame/position.dart';
-import 'package:flame/spritesheet.dart';
+import 'package:flame/text_config.dart';
 import 'package:flutter/material.dart';
 
 import 'dino.dart';
 
-class DinoGame extends BaseGame with TapDetector {
+class DinoGame extends BaseGame with TapDetector, HasWidgetsOverlay {
   Dino _dino;
   ParallaxComponent _parallaxComponent;
   TextComponent _scoreText;
@@ -38,8 +38,10 @@ class DinoGame extends BaseGame with TapDetector {
     add(_enemyManager);
 
     score = 0;
-    _scoreText = TextComponent(score.toString());
+    _scoreText = TextComponent(score.toString(),
+        config: TextConfig(fontFamily: 'Audiowide', color: Colors.white));
     add(_scoreText);
+    addWidgetOverlay('Hud', _buildHud());
   }
 
   @override
@@ -66,5 +68,59 @@ class DinoGame extends BaseGame with TapDetector {
     super.resize(size);
     _scoreText.setByPosition(
         Position(((size.width / 2) - (_scoreText.width / 2)), 0));
+  }
+
+  Widget _buildHud() {
+    return IconButton(
+      icon: Icon(
+        Icons.pause,
+        color: Colors.white,
+        size: 30,
+      ),
+      onPressed: () {
+        pauseGame();
+      },
+    );
+  }
+
+  void pauseGame() {
+    pauseEngine();
+
+    addWidgetOverlay('PauseMenu', _buildPauseMenu());
+  }
+
+  Widget _buildPauseMenu() {
+    return Center(
+      child: Card(
+        color: Colors.black.withOpacity(0.5),
+        child: Padding(
+          padding: EdgeInsets.all(10),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Paused',
+                style: TextStyle(fontSize: 30, color: Colors.white),
+              ),
+              IconButton(
+                icon: Icon(
+                  Icons.play_arrow,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  resumeGame();
+                },
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void resumeGame() {
+    removeWidgetOverlay('PauseMenu');
+    resumeEngine();
   }
 }

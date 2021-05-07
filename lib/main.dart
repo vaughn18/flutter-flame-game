@@ -17,6 +17,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Dino Run',
       theme: ThemeData(
+        fontFamily: 'Audiowide',
         primarySwatch: Colors.blue,
       ),
       home: MyHomePage(title: 'Dino Run'),
